@@ -41,7 +41,7 @@
 
 #include "qnetworkconfiguration.h"
 
-#ifdef Q_OS_SYMBIAN
+#if defined(Q_OS_SYMBIAN) && !defined(BEARER_ENGINE)
 #include "qnetworkconfiguration_s60_p.h"
 #elif defined(Q_WS_MAEMO_6) || defined(Q_WS_MAEMO_5)
 #include "qnetworkconfiguration_maemo_p.h"

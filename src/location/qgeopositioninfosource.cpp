@@ -40,7 +40,7 @@
 ****************************************************************************/
 #include <qgeopositioninfosource.h>
 
-#if defined(Q_OS_SYMBIAN)
+#if defined(Q_OS_SYMBIAN) && !defined(QT_NO_LBS)
 #   include "qgeopositioninfosource_s60_p.h"
 #elif defined(Q_OS_WINCE)
 #   include "qgeopositioninfosource_wince_p.h"
@@ -198,7 +198,7 @@ QGeoPositionInfoSource::PositioningMethods QGeoPositionInfoSource::preferredPosi
 
 QGeoPositionInfoSource *QGeoPositionInfoSource::createDefaultSource(QObject *parent)
 {
-#if defined(Q_OS_SYMBIAN)
+#if defined(Q_OS_SYMBIAN) && !defined(QT_NO_LBS)
     QGeoPositionInfoSource *ret = NULL;
     TRAPD(error, ret = CQGeoPositionInfoSourceS60::NewL(parent));
     if (error != KErrNone)

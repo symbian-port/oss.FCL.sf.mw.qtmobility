@@ -1,5 +1,5 @@
 TEMPLATE = app
-TARGET = weatherinfo_with_location
+TARGET = weatherinfo
 
 HEADERS = ../satellitedialog/satellitedialog.h \
             ../flickrdemo/connectivityhelper.h
@@ -14,6 +14,8 @@ include(../examples.pri)
 
 CONFIG += mobility
 MOBILITY = location bearer
+
+symbian:DEFINES += SYBORG_OFFLINE_DEMO
 
 INCLUDEPATH += ../../src/global \
                 ../../src/bearer \

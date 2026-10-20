@@ -87,7 +87,8 @@ private:
     QGeoCoordinate m_coordinate;
 
 public:
-    WeatherInfo(QWidget *parent = 0): QMainWindow(parent) {
+    WeatherInfo(QWidget *parent = 0): QMainWindow(parent),
+        m_session(0), m_connectivityHelper(0) {
 
         m_view = new QGraphicsView(this);
         setCentralWidget(m_view);
@@ -147,12 +148,18 @@ public:
     ~WeatherInfo() {
         if (m_location)
             m_location->stopUpdates();
-        m_session->close();
+        if (m_session)
+            m_session->close();
     }
 
 private slots:
 
     void delayedInit() {
+#ifdef SYBORG_OFFLINE_DEMO
+        loadOfflineWeather("Syborg");
+        qDebug("[WEATHERINFO] READY offline=1");
+        return;
+#endif
         // Set Internet Access Point
         QNetworkConfigurationManager manager;
         const bool canStartIAP = (manager.capabilities()
@@ -181,6 +188,15 @@ private slots:
         m_gpsWeather = true;
 
         if (!m_location) {
+#ifdef SYBORG_OFFLINE_DEMO
+            QNmeaPositionInfoSource *nmeaLocation =
+                new QNmeaPositionInfoSource(QNmeaPositionInfoSource::SimulationMode, this);
+            QFile *logFile = new QFile(QApplication::applicationDirPath() + QDir::separator()
+                                       + "nmealog.txt", this);
+            nmeaLocation->setDevice(logFile);
+            m_location = nmeaLocation;
+            m_usingLogFile = true;
+#else
             // QGeoPositionInfoSource
             m_location = QGeoPositionInfoSource::createDefaultSource(this);
 
@@ -197,6 +213,7 @@ private slots:
                 QMessageBox::information(this, tr("Weather Info"),
                                          tr("No GPS support detected, using GPS data from a sample log file instead."));
             }
+#endif
         }
 
         if (!m_usingLogFile) {
@@ -327,6 +344,11 @@ private:
     }
 
     void requestTownName(QString longitude, QString latitude) {
+#ifdef SYBORG_OFFLINE_DEMO
+        Q_UNUSED(longitude);
+        Q_UNUSED(latitude);
+        loadOfflineWeather("Syborg GPS");
+#else
         // http://code.google.com/intl/en/apis/maps/documentation/geocoding/index.html#ReverseGeocoding
         QUrl url("http://maps.google.com/maps/geo");
         url.addEncodedQueryItem("q", QUrl::toPercentEncoding(latitude + "," + longitude));
@@ -336,6 +358,7 @@ private:
 
         city = QString();
         setWindowTitle("Loading...");
+#endif
     }
 
     void requestWeatherOfTown(QString xml) {
@@ -347,6 +370,9 @@ private:
     }
 
     void request(const QString &location) {
+#ifdef SYBORG_OFFLINE_DEMO
+        loadOfflineWeather(location);
+#else
         QUrl url("http://www.google.com/ig/api");
         url.addEncodedQueryItem("hl", "en");
         url.addEncodedQueryItem("weather", QUrl::toPercentEncoding(location));
@@ -355,6 +381,26 @@ private:
 
         city = QString();
         setWindowTitle("Loading...");
+#endif
+    }
+
+    void loadOfflineWeather(const QString &location) {
+        const QString sample = QString::fromLatin1(
+            "<xml_api_reply><weather><forecast_information>"
+            "<city data=\"%1\"/><unit_system data=\"SI\"/>"
+            "</forecast_information><current_conditions>"
+            "<condition data=\"Sunny\"/><temp_c data=\"27\"/>"
+            "<icon data=\"/ig/images/weather/sunny.gif\"/>"
+            "</current_conditions>"
+            "<forecast_conditions><day_of_week data=\"Fri\"/>"
+            "<low data=\"24\"/><high data=\"30\"/>"
+            "<icon data=\"/ig/images/weather/sunny.gif\"/>"
+            "</forecast_conditions>"
+            "<forecast_conditions><day_of_week data=\"Sat\"/>"
+            "<low data=\"23\"/><high data=\"29\"/>"
+            "<icon data=\"/ig/images/weather/partly_cloudy.gif\"/>"
+            "</forecast_conditions></weather></xml_api_reply>").arg(location);
+        digest(sample);
     }
 
     QString extractIcon(const QString &data) {

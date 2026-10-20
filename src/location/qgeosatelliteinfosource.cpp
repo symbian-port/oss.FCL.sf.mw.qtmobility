@@ -40,7 +40,7 @@
 ****************************************************************************/
 #include <qgeosatelliteinfosource.h>
 
-#if defined(Q_OS_SYMBIAN)
+#if defined(Q_OS_SYMBIAN) && !defined(QT_NO_LBS)
 #   include "qgeosatelliteinfosource_s60_p.h"
 #elif defined(Q_OS_WINCE)
 #   include "qgeosatelliteinfosource_wince_p.h"
@@ -87,7 +87,7 @@ QGeoSatelliteInfoSource::QGeoSatelliteInfoSource(QObject *parent)
 */
 QGeoSatelliteInfoSource *QGeoSatelliteInfoSource::createDefaultSource(QObject *parent)
 {
-#if defined(Q_OS_SYMBIAN)
+#if defined(Q_OS_SYMBIAN) && !defined(QT_NO_LBS)
     CQGeoSatelliteInfoSourceS60 *ret = NULL;
     TRAPD(error, ret = CQGeoSatelliteInfoSourceS60::NewL(parent));
     if (error != KErrNone)

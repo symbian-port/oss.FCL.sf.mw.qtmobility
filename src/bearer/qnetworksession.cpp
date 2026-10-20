@@ -44,7 +44,7 @@
 
 #include "qnetworksession.h"
 
-#ifdef Q_OS_SYMBIAN
+#if defined(Q_OS_SYMBIAN) && !defined(BEARER_ENGINE)
 #include "qnetworksession_s60_p.h"
 #elif defined(Q_WS_MAEMO_6) || defined(Q_WS_MAEMO_5)
 #include "qnetworksession_maemo_p.h"
@@ -683,7 +683,7 @@ void QNetworkSession::connectNotify(const char *signal)
     QObject::connectNotify(signal);
     //check for preferredConfigurationChanged() signal connect notification
     //This is not required on all platforms
-#ifdef Q_OS_SYMBIAN
+#if defined(Q_OS_SYMBIAN) && !defined(BEARER_ENGINE)
     if (qstrcmp(signal, SIGNAL(preferredConfigurationChanged(QNetworkConfiguration,bool))) == 0) {
         d->setALREnabled(true);
     }
@@ -703,7 +703,7 @@ void QNetworkSession::disconnectNotify(const char *signal)
     QObject::disconnectNotify(signal);
     //check for preferredConfigurationChanged() signal disconnect notification
     //This is not required on all platforms
-#ifdef Q_OS_SYMBIAN
+#if defined(Q_OS_SYMBIAN) && !defined(BEARER_ENGINE)
     if (qstrcmp(signal, SIGNAL(preferredConfigurationChanged(QNetworkConfiguration,bool))) == 0) {
         d->setALREnabled(false);
     }    

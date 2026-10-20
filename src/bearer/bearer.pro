@@ -19,40 +19,18 @@ SOURCES += qnetworksession.cpp \
            qnetworkconfiguration.cpp
 
 symbian: {
-    contains (occ_enabled, yes) {
-        message("Building with OCC enabled")
-        DEFINES += OCC_FUNCTIONALITY_AVAILABLE=1
-        LIBS += -lextendedconnpref
-    } else {
-        message("Building without OCC support")
-    }
-    contains(snap_enabled, yes) {
-        message("Building with SNAP support")
-        DEFINES += SNAP_FUNCTIONALITY_AVAILABLE=1
-        LIBS += -lcmmanager
-    } else {
-        message("Building without SNAP support")
-	LIBS += -lapengine
-    }
-    
-    INCLUDEPATH += $$APP_LAYER_SYSTEMINCLUDE
+    DEFINES += BEARER_ENGINE
 
-    HEADERS += qnetworkconfigmanager_s60_p.h \
-               qnetworkconfiguration_s60_p.h \
-               qnetworksession_s60_p.h
-    SOURCES += qnetworkconfigmanager_s60_p.cpp \
-               qnetworkconfiguration_s60_p.cpp \
-               qnetworksession_s60_p.cpp
-               
-    LIBS += -lcommdb \
-            -lapsettingshandlerui \
-            -lconnmon \
-            -lcentralrepository \
-            -lesock \
-            -linsock \
-            -lecom \
-            -lefsrv \
-            -lnetmeta
+    HEADERS += qnetworkconfigmanager_p.h \
+               qnetworkconfiguration_p.h \
+               qnetworksession_p.h \
+               qnetworksessionengine_p.h \
+               qgenericengine_p.h
+
+    SOURCES += qnetworkconfigmanager_p.cpp \
+               qnetworksession_p.cpp \
+               qnetworksessionengine.cpp \
+               qgenericengine.cpp
 
     TARGET.CAPABILITY = ALL -TCB
     TARGET.UID3 = 0x2002AC81
